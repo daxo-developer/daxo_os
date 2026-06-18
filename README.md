@@ -4,6 +4,10 @@ A custom, independent x86_64 multitasking microkernel written in Rust from scrat
 
 Project Status: Active development. Built as an independent deep-dive into low-level operating system architecture.
 
+<p align="center">
+  <img src="screenshot.jpg" alt="Daxo OS Boot Screen" width="650">
+</p>
+
 ## Key Features
 
 Zero Standard Library (no_std): Runs on bare-metal with absolutely no underlying operating system dependencies.
