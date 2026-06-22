@@ -1,4 +1,4 @@
-use crate::{print, println};
+use crate::print;
 use conquer_once::spin::OnceCell;
 use crossbeam_queue::ArrayQueue;
 use core::{pin::Pin, task::{Poll, Context}};

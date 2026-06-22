@@ -1,6 +1,7 @@
 #![no_std]
 #![cfg_attr(test, no_main)]
 #![feature(custom_test_frameworks)]
+// #![feature(naked_functions)]
 #![feature(abi_x86_interrupt)]
 #![test_runner(crate::test_runner)]
 #![reexport_test_harness_main = "test_main"]
@@ -16,6 +17,7 @@ pub mod memory;
 pub mod allocator;
 pub mod task;
 pub mod ata;
+pub mod syscall;
 
 
 use core::panic::PanicInfo;
