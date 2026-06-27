@@ -49,12 +49,14 @@ Ensure you have the latest Rust Nightly toolchain installed alongside `qemu-syst
 To compile the kernel and boot it inside QEMU, run:
 ```bash
 cargo run -Zjson-target-spec
+```
 
 ## Building the Standalone Bootimage
 To compile a flat, production-ready raw disk image (.bin), use:
 ```bash
 cargo install bootimage # If not already installed
 cargo bootimage
+```
 
 ## The resulting bootable artifact will be generated at target/x86_64-daxo_os/debug/bootimage-daxo_os.bin.
 
