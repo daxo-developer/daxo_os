@@ -16,7 +16,7 @@ use alloc::vec;
 use daxo_os::task::{Task, keyboard};
 use daxo_os::task::executor::Executor;
 
-// structures and traits for custom memory page mapping
+// Structures and traits for custom memory page mapping
 use x86_64::structures::paging::{Page, Size4KiB, Mapper, FrameAllocator, PageTableFlags};
 
 entry_point!(kernel_main);
@@ -53,17 +53,17 @@ fn kernel_main(boot_info: &'static BootInfo) -> ! {
         .expect("heap initialization failed");
 
     // --- Setting up an isolated custom page ---
-    // select an arbitrary virtual address for our program.
+    // Select an arbitrary virtual address for our program.
     let user_test_page = Page::<Size4KiB>::containing_address(VirtAddr::new(0x0000_1000_0000_0000));
 
     // We allocate a physical frame for it.
     let user_frame = frame_allocator.allocate_frame()
         .expect("no frames available for user test page");
 
-    // add USER_ACCESSIBLE :
+    // Add USER_ACCESSIBLE flag:
     let user_flags = PageTableFlags::PRESENT | PageTableFlags::WRITABLE | PageTableFlags::USER_ACCESSIBLE;
 
-    // mape page
+    // Map page:
     unsafe {
         mapper.map_to(user_test_page, user_frame, user_flags, &mut frame_allocator)
             .expect("failed to map user test page")
