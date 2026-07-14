@@ -5,8 +5,8 @@ target = "x86_64-blog_os.json"
 runner = "bootimage runner"
 
 [unstable]
-# Добавляем compiler_builtins в сборку стандартной библиотеки
+# Add compiler_builtins to the standard library build
 build-std = ["core", "alloc", "compiler_builtins"]
-# Активируем генерацию memcpy, memset, memcmp, memmove
+# Activate generation of memcpy, memset, memcmp, memmove
 build-std-features = ["compiler-builtins-mem"]
 json-target-spec = true
