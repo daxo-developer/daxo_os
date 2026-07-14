@@ -13,7 +13,7 @@ name = "stack_overflow"
 harness = false
 
 [dependencies]
-# Фиксируем версию и явно включаем маппинг физической памяти
+# Fix the version and enable physical memory mapping
 bootloader = { version = "=0.9.33", features = ["map_physical_memory"] }
 volatile = "0.2.6"
 spin = "0.5.2"
@@ -35,7 +35,7 @@ name = "daxo_os"
 test = true
 bench = false
 
-# Конфигурация сборщика bootimage и параметров QEMU
+# Configuring the bootimage builder and QEMU parameters
 [package.metadata.bootimage]
 test-args = [
     "-device", "isa-debug-exit,iobase=0xf4,iosize=0x04",
@@ -44,7 +44,7 @@ test-args = [
 ]
 test-success-exit-code = 33
 
-# Вот этот блок обновляем: явно задаем интерфейс ide для disk.bin
+# Explicitly set the ide interface for disk.bin
 run-args = [
     "-serial", "stdio",
     "-drive", "file=disk.bin,format=raw,if=ide,bus=0,unit=1"
