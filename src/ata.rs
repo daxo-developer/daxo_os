@@ -50,7 +50,7 @@ impl AtaBus {
 
     fn wait_ready(&mut self) -> bool {
         unsafe {
-            // Увеличиваем лимит ожидания, чтобы медленный диск успевал ответить
+            // The wait limit has been increased to allow the slow disk to respond quickly:
             for _ in 0..50000 {
                 if (self.command_status.read() & ATA_STATUS_BSY) == 0 {
                     return true;
@@ -105,7 +105,7 @@ impl AtaBus {
                 return;
             }
 
-            // Чтение данных портов
+            // Reading port data
             for i in (0..512).step_by(2) {
                 let word = self.data_port.read();
                 buffer[i] = (word & 0xFF) as u8;
