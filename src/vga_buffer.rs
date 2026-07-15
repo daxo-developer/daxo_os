@@ -4,9 +4,7 @@ use spin::Mutex;
 use volatile::Volatile;
 
 lazy_static! {
-    /// A global `Writer` instance that can be used for printing to the VGA text buffer.
-    ///
-    /// Used by the `print!` and `println!` macros.
+    /// A global `Writer` instance that can be used for printing to the VGA text buffer:
     pub static ref WRITER: Mutex<Writer> = Mutex::new(Writer {
         column_position: 0,
         color_code: ColorCode::new(Color::Yellow, Color::Black),
@@ -14,7 +12,7 @@ lazy_static! {
     });
 }
 
-/// The standard color palette in VGA text mode.
+/// The standard color palette in VGA text mode:
 #[allow(dead_code)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(u8)]
@@ -43,13 +41,11 @@ pub enum Color {
 struct ColorCode(u8);
 
 impl ColorCode {
-    /// Create a new `ColorCode` with the given foreground and background colors.
     fn new(foreground: Color, background: Color) -> ColorCode {
         ColorCode((background as u8) << 4 | (foreground as u8))
     }
 }
 
-/// A screen character in the VGA text buffer, consisting of an ASCII character and a `ColorCode`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(C)]
 struct ScreenChar {
@@ -57,9 +53,9 @@ struct ScreenChar {
     color_code: ColorCode,
 }
 
-/// The height of the text buffer (normally 25 lines).
+/// The height of the text buffer (normally 25 lines):
 const BUFFER_HEIGHT: usize = 25;
-/// The width of the text buffer (normally 80 columns).
+/// The width of the text buffer (normally 80 columns):
 const BUFFER_WIDTH: usize = 80;
 
 /// A structure representing the VGA text buffer.
@@ -69,9 +65,6 @@ struct Buffer {
 }
 
 /// A writer type that allows writing ASCII bytes and strings to an underlying `Buffer`.
-///
-/// Wraps lines at `BUFFER_WIDTH`. Supports newline characters and implements the
-/// `core::fmt::Write` trait.
 pub struct Writer {
     column_position: usize,
     color_code: ColorCode,
@@ -80,8 +73,6 @@ pub struct Writer {
 
 impl Writer {
     /// Writes an ASCII byte to the buffer.
-    ///
-    /// Wraps lines at `BUFFER_WIDTH`. Supports the `\n` newline character.
     pub fn write_byte(&mut self, byte: u8) {
         match byte {
             b'\n' => self.new_line(),
@@ -104,10 +95,6 @@ impl Writer {
     }
 
     /// Writes the given ASCII string to the buffer.
-    ///
-    /// Wraps lines at `BUFFER_WIDTH`. Supports the `\n` newline character. Does **not**
-    /// support strings with non-ASCII characters, since they can't be printed in the VGA text
-    /// mode.
     fn write_string(&mut self, s: &str) {
         for byte in s.bytes() {
             match byte {
@@ -167,16 +154,11 @@ macro_rules! println {
 #[doc(hidden)]
 pub fn _print(args: fmt::Arguments) {
     use core::fmt::Write;
-    // СЕЙЧАС У ТЕБЯ НАВЕРНЯКА ТАК:
-    // WRITER.lock().write_fmt(args).unwrap();
-    
-    // ИСПРАВЬ НА БЕЗОПАСНЫЙ ВАРИАНТ:
     x86_64::instructions::interrupts::without_interrupts(|| {
         WRITER.lock().write_fmt(args).unwrap();
     });
 }
 
-// Обнови тест в самом низу файла vga_buffer.rs:
 #[test_case]
 fn test_println_output() {
     use core::fmt::Write;
