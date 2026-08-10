@@ -1,6 +1,6 @@
-Daxo OS
+# Daxo OS
 
-A custom x86_64 kernel written in Rust (no_std) from scratch. Currently boots via UEFI, sets up 4-level paging, and can execute user-mode code in Ring 3.
+A custom x86_64 kernel written in Rust, heavily based on the excellent [“Writing an OS in Rust”](https://os.phil-opp.com/) series by Philipp Oppermann. This project started as a learning exercise following that tutorial, and has since been extended with custom features (ATA PIO driver, cooperative multitasking, user-mode switching, syscall stubs, etc.). Currently boots via UEFI, sets up 4-level paging, and can execute user-mode code in Ring 3.
 
 Status: Active development. Learning project for low-level x86_64 architecture and bare-metal Rust.
 
