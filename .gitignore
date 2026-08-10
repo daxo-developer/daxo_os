@@ -1,4 +1,11 @@
-/target
+/target/
+/Cargo.lock
+/disk.bin
+*.o
+*.bin
+*.img
+*.iso
 **/*.rs.bk
-
-.vscode
+*.swp
+*.swo
+.DS_Store
