@@ -46,3 +46,9 @@ MIT / Apache-2.0
 Repo: https://github.com/daxo-developer/daxo_os
 
 ---
+
+<div align="center">
+  <img src="daxo_os_logo.jpg" alt="Daxo OS Logo" width="200"/>
+  <h1>Daxo OS</h1>
+  <p>A custom x86_64 kernel written in Rust</p>
+</div>
