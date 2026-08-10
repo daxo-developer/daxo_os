@@ -9,4 +9,4 @@ runner = "bootimage runner"
 build-std = ["core", "alloc", "compiler_builtins"]
 # Activate generation of memcpy, memset, memcmp, memmove
 build-std-features = ["compiler-builtins-mem"]
-json-target-spec = true
+# json-target-spec = true
