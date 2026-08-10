@@ -11,7 +11,7 @@ jobs:
       - name: Install Rust nightly
         uses: actions-rs/toolchain@v1
         with:
-          toolchain: nightly-2024-07-15
+          toolchain: nightly
           override: true
           components: rust-src, llvm-tools-preview, rustfmt, clippy
 
@@ -34,4 +34,4 @@ jobs:
 
       - name: Clippy
         run: cargo clippy -- -D warnings
-        
+      
