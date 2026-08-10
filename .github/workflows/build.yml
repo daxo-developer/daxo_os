@@ -24,7 +24,7 @@ jobs:
         run: cargo install bootimage
 
       - name: Build kernel
-        run: cargo bootimage -- -Zjson-target-spec   # ← добавлен флаг
+        run: cargo bootimage
 
       - name: Run tests
         run: cargo test -- --nocapture
