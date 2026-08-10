@@ -1,0 +1,24 @@
+name: Build and Test
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
+          override: true
+          components: rustfmt, clippy
+      - name: Install bootimage
+        run: cargo install bootimage
+      - name: Build kernel
+        run: cargo bootimage
+      - name: Run tests (QEMU)
+        run: cargo test -- --nocapture
+      - name: Format check
+        run: cargo fmt -- --check
+      - name: Clippy
+        run: cargo clippy -- -D warnings
