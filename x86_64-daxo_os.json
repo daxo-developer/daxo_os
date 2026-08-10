@@ -11,6 +11,5 @@
   "executables": true,
   "panic-strategy": "abort",
   "disable-redzone": true,
-  "features": "-mmx,-sse",
-  "rustc-abi": "softfloat"
+  "features": "+fxsr,+sse,+sse2"
 }
