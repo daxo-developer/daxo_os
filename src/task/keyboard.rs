@@ -6,15 +6,20 @@ use futures_util::stream::{Stream, StreamExt};
 use futures_util::task::AtomicWaker;
 use pc_keyboard::{layouts, DecodedKey, HandleControl, Keyboard, ScancodeSet1};
 
-static SCANCODE_QUEUE: OnceCell<ArrayQueue<u8>> = OnceCell::uninit();
+pub static SCANCODE_QUEUE: OnceCell<ArrayQueue<u8>> = OnceCell::uninit();
 static WAKER: AtomicWaker = AtomicWaker::new();
+
+/// Явная инициализация очереди сканкодов
+pub fn init() {
+    SCANCODE_QUEUE.try_init_once(|| ArrayQueue::new(100))
+        .expect("SCANCODE_QUEUE initialization failed");
+}
 
 /// Вызывается обработчиком прерывания клавиатуры. Не должна аллоцировать и печатать!
 pub(crate) fn add_scancode(scancode: u8) {
     if let Ok(queue) = SCANCODE_QUEUE.try_get() {
-        // Просто игнорируем скан-код, если очередь полна, без вызова дедлока через println!
         if let Ok(_) = queue.push(scancode) {
-            WAKER.wake(); // Будим задачу чтения, когда байт на месте
+            WAKER.wake();
         }
     }
 }
@@ -25,8 +30,7 @@ pub struct ScancodeStream {
 
 impl ScancodeStream {
     pub fn new() -> Self {
-        SCANCODE_QUEUE.try_init_once(|| ArrayQueue::new(100))
-            .expect("ScancodeStream::new should only be called once");
+        init();
         ScancodeStream { _private: () }
     }
 }
@@ -37,15 +41,12 @@ impl Stream for ScancodeStream {
     fn poll_next(self: Pin<&mut Self>, cx: &mut Context) -> Poll<Option<u8>> {
         let queue = SCANCODE_QUEUE.try_get().expect("scancode queue not initialized");
 
-        // Быстрый путь: если в очереди что-то есть, сразу отдаем
         if let Some(scancode) = queue.pop() {
             return Poll::Ready(Some(scancode));
         }
 
-        // Если пусто — регистрируем текущий Waker для этой задачи
         WAKER.register(&cx.waker());
         
-        // Повторная проверка на случай гонки данных
         match queue.pop() {
             Some(scancode) => {
                 WAKER.take();
