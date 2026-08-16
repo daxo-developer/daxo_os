@@ -19,6 +19,8 @@ use daxo_os::task::executor::Executor;
 // Structures and traits for custom memory page mapping
 use x86_64::structures::paging::{Page, Size4KiB, Mapper, FrameAllocator, PageTableFlags};
 
+mod fs;
+
 entry_point!(kernel_main);
 
 async fn async_number() -> u32 {
@@ -53,25 +55,19 @@ fn kernel_main(boot_info: &'static BootInfo) -> ! {
         .expect("heap initialization failed");
 
     // --- Setting up an isolated custom page ---
-    // Select an arbitrary virtual address for our program.
     let user_test_page = Page::<Size4KiB>::containing_address(VirtAddr::new(0x0000_1000_0000_0000));
 
-    // We allocate a physical frame for it.
     let user_frame = frame_allocator.allocate_frame()
         .expect("no frames available for user test page");
 
-    // Add USER_ACCESSIBLE flag:
     let user_flags = PageTableFlags::PRESENT | PageTableFlags::WRITABLE | PageTableFlags::USER_ACCESSIBLE;
 
-    // Map page:
     unsafe {
         mapper.map_to(user_test_page, user_frame, user_flags, &mut frame_allocator)
             .expect("failed to map user test page")
             .flush();
     }
 
-    // We write the binary code of an infinite loop into this page
-    // In x86_64 assembler, the jmp $ command is encoded with two bytes: 0xEB, 0xFE
     unsafe {
         let user_code_ptr = user_test_page.start_address().as_mut_ptr::<u8>();
         user_code_ptr.write(0xEB);        // jmp
@@ -79,7 +75,6 @@ fn kernel_main(boot_info: &'static BootInfo) -> ! {
     }
 
     println!("[Memory] User page mapped successfully at 0x0000_1000_0000_0000!");
-    // ---------------------------------------------------------------------------------
 
     // 3 --- ATA driver test ---
     println!("[Testing ATA Drive Driver...]");
@@ -93,7 +88,7 @@ fn kernel_main(boot_info: &'static BootInfo) -> ! {
         let mut data_found = false;
         for &byte in disk_buffer.iter().take(90) {
             if byte >= 32 && byte <= 126 {
-				print!("{}", byte as char);
+                print!("{}", byte as char);
                 data_found = true;
             }
         }
@@ -102,9 +97,13 @@ fn kernel_main(boot_info: &'static BootInfo) -> ! {
         }
         println!("\n[ATA Test Finished]\n");
     }
-    // ---------------------------------------------------------------------------------
 
-    // 4. Initializing the IDT, GDT, and PIC interrupt controller
+    // 4. Initializing Simple File System
+    fs::SimpleFS::init();
+    fs::SimpleFS::list_directory();
+    println!();
+
+    // 5. Initializing the IDT, GDT, and PIC interrupt controller
     daxo_os::init(); 
 
     // Initializing system calls.
@@ -113,18 +112,16 @@ fn kernel_main(boot_info: &'static BootInfo) -> ! {
     #[cfg(test)]
     test_main();
 
-    // 5. Create a task scheduler
+    // 6. Create a task scheduler
     let mut executor = Executor::new();
     executor.spawn(Task::new(example_task()));
     executor.spawn(Task::new(keyboard::print_keypresses()));
     
-    // 6. Allow the processor to receive interrupts
+    // 7. Allow the processor to receive interrupts
     x86_64::instructions::interrupts::enable();
-
-    // 7. Switching to user space (ring 3)
+    // 8. Switching to user space (ring 3)
     println!("Preparing transition to Ring 3...");
     
-    // Invoking a controlled jump into isolated user-space memory
     unsafe {
         let user_entry_fn: fn() -> ! = core::mem::transmute(user_test_page.start_address().as_mut_ptr::<u8>());
         daxo_os::gdt::jump_to_user_space(user_entry_fn);
@@ -144,22 +141,17 @@ fn panic(info: &PanicInfo) -> ! {
     daxo_os::test_panic_handler(info)
 }
 
-// We'll leave the old function below in case we want to return to syscall testing later.
 fn first_user_program() -> ! {
-    // We are in Ring 3.
-    // we use the syscall instruction :
     loop {
         unsafe {
             core::arch::asm!(
-                "mov rax, 1", // We put the syscall number in RAX
-                "syscall",    // We ask the kernel to do this for us.
-                out("rax") _, // We tell the compiler that RAX will change.
-                out("rcx") _, // RCX will be erased by the processor
-                out("r11") _  // R11 will be erased by the processor
+                "mov rax, 1",
+                "syscall",
+                out("rax") _,
+                out("rcx") _,
+                out("r11") _
             );
         }
-
-        // Delay.
         for _ in 0..1_000_000 {}
     }
 }
