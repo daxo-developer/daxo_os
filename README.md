@@ -48,3 +48,22 @@ Setting up the Task State Segment (TSS) with the correct Interrupt Stack Table (
 MIT / Apache-2.0
 
 # Repo: https://github.com/daxo-developer/daxo_os
+
+# Web resources:
+
+
+https://daxo-developer.github.io/
+
+https://daxo-developer.github.io/daxo-binary-anylazer/
+
+https://daxo-developer.github.io/daxo-os-gallery-web/
+
+https://daxo-developer.github.io/daxo-os-webreboot/
+
+https://daxo-developer.github.io/daxo-os-website/
+
+https://daxo-developer.github.io/daxo.sh/
+
+https://daxo-developer.github.io/dx-wasm/
+
+https://daxo-developer.github.io/The-Daxo-OS-Macro-Cosmic-PCB/
